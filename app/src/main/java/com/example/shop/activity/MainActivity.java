@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.media.Image;
 import android.net.ConnectivityManager;
@@ -16,6 +18,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -24,7 +27,9 @@ import android.widget.ViewFlipper;
 import com.bumptech.glide.Glide;
 import com.example.shop.R;
 import com.example.shop.adapter.LoaiSpAdapter;
+import com.example.shop.adapter.SanPhamMoiAdapter;
 import com.example.shop.model.LoaiSp;
+import com.example.shop.model.SanPhamMoi;
 import com.example.shop.retrofit.ApiBanHang;
 import com.example.shop.retrofit.RetrofitClient;
 import com.example.shop.utils.Utils;
@@ -48,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     List<LoaiSp> mangloaisp;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     ApiBanHang apiBanHang;
+    List<SanPhamMoi> mangSpMoi;
+    SanPhamMoiAdapter spAdapter;
 
 
     @Override
@@ -59,12 +66,56 @@ public class MainActivity extends AppCompatActivity {
         Anhxa();
         ActionBar();
         if(isConnected(this)){
-            Toast.makeText(getApplicationContext(),"ok",Toast.LENGTH_LONG).show();
             ActionViewFlipper();
             getLoaiSanPham();
+            getSpMoi();
+            getEventClick();
         }else{
             Toast.makeText(getApplicationContext(),"không co internet",Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void getEventClick() {
+        listViewManHinhChinh.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i){
+                    case 0:
+                        Intent trangchu = new Intent(getApplicationContext(),MainActivity.class);
+                        startActivity(trangchu);
+                        break;
+                    case 1:
+                        Intent dienthoai = new Intent(getApplicationContext(),DienThoaiActivity.class);
+                        dienthoai.putExtra("loai",1);
+                        startActivity(dienthoai);
+                        break;
+                    case 2:
+                        Intent laptop = new Intent(getApplicationContext(),LaptopActivity.class);
+                        startActivity(laptop);
+                        break;
+
+                }
+            }
+        });
+    }
+
+    private void getSpMoi() {
+        compositeDisposable.add(apiBanHang.getSpMoi()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+                sanPhamMoiModel -> {
+                    if(sanPhamMoiModel.isSuccess()){
+                        mangSpMoi = sanPhamMoiModel.getResult();
+                        spAdapter = new SanPhamMoiAdapter(getApplicationContext(),mangSpMoi);
+                        recyclerViewManHinhChinh.setAdapter(spAdapter);
+
+                    }
+                },
+                throwable -> {
+                    Toast.makeText(getApplicationContext(),"không kết nối được server",Toast.LENGTH_LONG).show();
+                }
+        ));
     }
 
     private void getLoaiSanPham() {
@@ -117,11 +168,15 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toobarmanhinhchinh);
         viewFlipper = findViewById(R.id.viewlipper);
         recyclerViewManHinhChinh = findViewById(R.id.recyclerView);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,2);
+        recyclerViewManHinhChinh.setLayoutManager(layoutManager);
+        recyclerViewManHinhChinh.setHasFixedSize(true);
         listViewManHinhChinh = findViewById(R.id.listviewmanhinhchinh);
         navigationView = findViewById(R.id.navigationView);
         drawerLayout = findViewById(R.id.drawerLayout);
 
         mangloaisp = new ArrayList<>();
+        mangSpMoi = new ArrayList<>();
 
         loaiSpAdapter = new LoaiSpAdapter(getApplicationContext(),mangloaisp);
         listViewManHinhChinh.setAdapter(loaiSpAdapter);
