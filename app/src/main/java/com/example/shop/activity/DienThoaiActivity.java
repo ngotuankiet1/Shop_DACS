@@ -1,11 +1,13 @@
 package com.example.shop.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.example.shop.R;
@@ -31,6 +33,9 @@ public class DienThoaiActivity extends AppCompatActivity {
     int loai;
     DienThoaiAdapter adapterDt;
     List<SanPhamMoi> sanPhamMoiList;
+    LinearLayoutManager linearLayoutManager;
+    Handler handler = new Handler();
+    Boolean isloading = false;
 
 
     @Override
@@ -41,19 +46,73 @@ public class DienThoaiActivity extends AppCompatActivity {
         loai = getIntent().getIntExtra("loai",1);
         Anhxa();
         ActionTooBar();
-        getData();
+        getData(page);
+        addEventLoad();
     }
 
-    private void getData() {
+    private void addEventLoad() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(isloading == false){
+                    if(linearLayoutManager.findLastCompletelyVisibleItemPosition() == sanPhamMoiList.size()-1){
+                        isloading = true;
+                        loadMore();
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadMore() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                sanPhamMoiList.add(null);
+                adapterDt.notifyItemInserted(sanPhamMoiList.size()-1);
+            }
+        });
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sanPhamMoiList.remove(sanPhamMoiList.size()-1);
+                adapterDt.notifyItemInserted(sanPhamMoiList.size());
+                page = page + 1;
+                getData(page);
+                adapterDt.notifyDataSetChanged();
+                isloading = false;
+            }
+        },2000);
+    }
+
+    private void getData(int page) {
         compositeDisposable.add(apiBanHang.getSanPham(page,loai)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         sanPhamMoiModel -> {
                             if(sanPhamMoiModel.isSuccess()){
-                                sanPhamMoiList = sanPhamMoiModel.getResult();
-                                adapterDt = new DienThoaiAdapter(getApplicationContext(), sanPhamMoiList);
-                                recyclerView.setAdapter(adapterDt);
+                                if(adapterDt == null){
+                                    sanPhamMoiList = sanPhamMoiModel.getResult();
+                                    adapterDt = new DienThoaiAdapter(getApplicationContext(), sanPhamMoiList);
+                                    recyclerView.setAdapter(adapterDt);
+                                }else{
+                                    int vitri = sanPhamMoiList.size()-1;
+                                    int soluongadd = sanPhamMoiModel.getResult().size();
+                                    for(int i =0;i<soluongadd;i++){
+                                        sanPhamMoiList.add(sanPhamMoiModel.getResult().get(i));
+                                    }
+                                    adapterDt.notifyItemRangeInserted(vitri,soluongadd);
+                                }
+                            }else{
+                                Toast.makeText(getApplicationContext(),"Hết dữ liệu rồi",Toast.LENGTH_LONG).show();
+                                isloading=true;
                             }
                         },
                         throwable -> {
@@ -70,8 +129,8 @@ public class DienThoaiActivity extends AppCompatActivity {
     private void Anhxa() {
         toolbar = findViewById(R.id.toobar);
         recyclerView = findViewById(R.id.recyclerView_dt);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
         sanPhamMoiList = new ArrayList<>();
     }
