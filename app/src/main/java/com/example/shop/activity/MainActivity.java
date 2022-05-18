@@ -178,9 +178,10 @@ public class MainActivity extends AppCompatActivity {
 
         mangloaisp = new ArrayList<>();
         mangSpMoi = new ArrayList<>();
+        if(Utils.manggiohang == null){
+            Utils.manggiohang = new ArrayList<>();
+        }
 
-        loaiSpAdapter = new LoaiSpAdapter(getApplicationContext(),mangloaisp);
-        listViewManHinhChinh.setAdapter(loaiSpAdapter);
     }
 
     private boolean isConnected(Context context){

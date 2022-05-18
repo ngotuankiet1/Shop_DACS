@@ -1,12 +1,17 @@
 package com.example.shop.model;
 
-public class SanPhamMoi {
+import java.io.Serializable;
+
+public class SanPhamMoi implements Serializable {
     int id;
     String tensp;
     String giasp;
     String hinhanh;
     String mota;
     int loai;
+
+    public SanPhamMoi() {
+    }
 
     public int getId() {
         return id;
