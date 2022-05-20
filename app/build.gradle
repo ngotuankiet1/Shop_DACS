@@ -60,5 +60,7 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
+    implementation("org.greenrobot:eventbus:3.3.1")
+
 
 }
