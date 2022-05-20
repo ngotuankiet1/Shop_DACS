@@ -9,6 +9,7 @@ android {
         applicationId "com.example.shop"
         minSdk 19
         targetSdk 32
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
 
@@ -56,5 +57,8 @@ dependencies {
 
     //badge
     implementation 'com.nex3z:notification-badge:1.0.4'
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
 
 }
