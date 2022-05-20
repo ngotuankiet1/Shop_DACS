@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:inputType="textEmailAddress"
@@ -45,6 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/pass"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:drawablePadding="5dp"
@@ -67,6 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <LinearLayout
+        android:id="@+id/line6"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
@@ -93,4 +96,13 @@
 
     </LinearLayout>
 
+    <TextView
+        android:textColor="#39AC3D"
+        android:gravity="center"
+        android:textSize="15sp"
+        android:text="Quên mật khẩu"
+        app:layout_constraintTop_toBottomOf="@+id/line6"
+        android:id="@+id/txtresetpass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
