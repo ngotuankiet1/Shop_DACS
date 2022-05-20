@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,7 @@ public class GiohangActivity extends AppCompatActivity {
     Button btnmuahang;
     GioHangAdapter adapter;
     List<Giohang> giohangList;
+    long tongtiensp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,7 @@ public class GiohangActivity extends AppCompatActivity {
     }
 
     private void tinhtongtien() {
-        long tongtiensp = 0;
+        tongtiensp = 0;
         for(int i = 0;i<Utils.manggiohang.size();i++){
             tongtiensp = tongtiensp + (Utils.manggiohang.get(i).getGiasp() * Utils.manggiohang.get(i).getSoluong());
         };
@@ -69,7 +71,14 @@ public class GiohangActivity extends AppCompatActivity {
             recyclerView.setAdapter(adapter);
         }
 
-
+        btnmuahang.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(),ThanhToanActivity.class);
+                intent.putExtra("tongtien",tongtiensp );
+                startActivity(intent);
+            }
+        });
     }
 
     private void initView() {
